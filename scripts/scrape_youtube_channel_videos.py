@@ -24,14 +24,12 @@ def get_latest_videos(channel_url, num_videos):
         video_data.append({
             'url': 'https://www.youtube.com/watch?v=' + video['id'],
             'title': video.get('title', ''),
-            'channel_name': video.get('uploader', ''),
-            'created_date': video.get('upload_date', ''),
         })
     return video_data
 
 
 def write_to_csv(video_data, output_file):
-    fieldnames = ['url', 'title', 'channel_name', 'created_date']
+    fieldnames = ['url', 'title']
     with open(output_file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()

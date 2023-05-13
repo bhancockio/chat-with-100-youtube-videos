@@ -45,6 +45,7 @@ const Chat = () => {
       })
       .then((resp) => {
         const answer = resp.data.answer;
+        console.log("data", resp.data.query);
         setChatHistory((old) => [...old, answer]);
         setMessages((oldMessages) => [
           ...oldMessages,

@@ -17,7 +17,8 @@ export default async function handler(
 ) {
   try {
     // Extract the question from the request body
-    const { question, chat_history = [] } = req.body as LangChainRequestBody;
+    const { question, chat_history = ["You're name is Alex Hormozi."] } =
+      req.body as LangChainRequestBody;
 
     if (!question) {
       return res
@@ -43,12 +44,13 @@ export default async function handler(
     const model = new OpenAI();
     const chain = ConversationalRetrievalQAChain.fromLLM(
       model,
-      vectorStore.asRetriever()
+      vectorStore.asRetriever(),
+      { returnSourceDocuments: true }
     );
 
     const query = await chain.call({ question, chat_history });
 
-    return res.status(200).json({ answer: query.text });
+    return res.status(200).json({ answer: query.text, query });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Something went wrong" });
