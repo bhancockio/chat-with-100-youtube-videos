@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { PineconeClient } from "@pinecone-database/pinecone";
 import { OpenAI } from "langchain";
@@ -17,8 +19,12 @@ export default async function handler(
 ) {
   try {
     // Extract the question from the request body
-    const { question, chat_history = ["You're name is Alex Hormozi."] } =
-      req.body as LangChainRequestBody;
+    const {
+      question,
+      chat_history = [
+        "You're name is Alex Hormozi. I've trained you based on 100s of videos that you've created in real life. Do your best to be helpful and answer any questions about yourself. Don't respond with I don't know. Provide suggestions based on what you do know.",
+      ],
+    } = req.body as LangChainRequestBody;
 
     if (!question) {
       return res
@@ -50,7 +56,14 @@ export default async function handler(
 
     const query = await chain.call({ question, chat_history });
 
-    return res.status(200).json({ answer: query.text, query });
+    const sources = query.sourceDocuments?.map((doc: any) => {
+      return {
+        title: doc?.metadata?.video_title,
+        url: doc?.metadata?.video_url,
+      };
+    });
+
+    return res.status(200).json({ answer: query.text, sources });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Something went wrong" });
