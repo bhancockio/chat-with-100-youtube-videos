@@ -12,7 +12,7 @@ interface Message {
   sources?: { title: string; url: string }[];
 }
 
-function Chat() {
+function Chat({ apiKey }: { apiKey: string }) {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -62,42 +62,60 @@ function Chat() {
       });
   };
   return (
-    <div className="w-ful flex flex-col">
+    <div className="w-ful m-2 flex flex-col">
       <div className="flex-grow space-y-4 overflow-y-auto border-2 border-solid p-4">
         {messages.length === 0 && (
           <div>No messages yet. Start chatting below!</div>
         )}
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex flex-col items-end ${
-              message.sender === "User" ? "justify-end" : ""
-            }`}
-          >
+        {messages.map((message) => {
+          // This will store the URLs we have seen for this message
+          const seenUrls = new Set<string>();
+
+          return (
             <div
-              className={`rounded-lg px-4 py-2 ${
-                message.sender === "User"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
+              key={message.id}
+              className={`flex flex-col items-end ${
+                message.sender === "User" ? "justify-end" : ""
               }`}
             >
-              {message.content}
-              {/* Display sources if present */}
-              {message.sources &&
-                message.sources.length > 0 &&
-                message.sources.map((source, index) => (
-                  <div
-                    key={index}
-                    className="mt-2 transform cursor-pointer rounded bg-gray-100 p-2 text-sm shadow-md transition-all duration-300 ease-in-out hover:scale-105"
-                    onClick={() => window.open(source.url, "_blank")}
-                  >
-                    <p className="font-bold text-gray-700">{source.title}</p>
-                  </div>
-                ))}
+              <div
+                className={`rounded-lg px-4 py-2 ${
+                  message.sender === "User"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                {message.content}
+                {/* Display sources if present */}
+                {message.sources &&
+                  message.sources.length > 0 &&
+                  message.sources
+                    .filter((source) => {
+                      // Check if we've seen this URL before
+                      if (seenUrls.has(source.url)) {
+                        // If we have, filter it out
+                        return false;
+                      } else {
+                        // If we haven't, add it to the set and keep it in the array
+                        seenUrls.add(source.url);
+                        return true;
+                      }
+                    })
+                    .map((source, index) => (
+                      <div
+                        key={index}
+                        className="mt-2 transform cursor-pointer rounded bg-gray-100 p-2 text-sm shadow-md transition-all duration-300 ease-in-out hover:scale-105"
+                        onClick={() => window.open(source.url, "_blank")}
+                      >
+                        <p className="font-bold text-gray-700">
+                          {source.title}
+                        </p>
+                      </div>
+                    ))}
+              </div>
             </div>
-          </div>
-        ))}
-
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
       <form onSubmit={handleSubmit} className="my-4 flex">
@@ -111,8 +129,8 @@ function Chat() {
         />
         <button
           type="submit"
-          className="ml-4 rounded-md bg-red-500 px-4 py-2 text-white"
-          disabled={loading}
+          className="ml-4 rounded-md bg-red-500 px-4 py-2 text-white disabled:bg-red-200"
+          disabled={loading || !apiKey}
         >
           {loading ? "Sending..." : "Send"}
         </button>
