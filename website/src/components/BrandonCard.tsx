@@ -6,7 +6,7 @@ const BrandonCard = () => (
       width={150}
       height={150}
       className="mx-auto rounded-full"
-      src="/alex_hormozi.jpeg"
+      src="/brandon_hancock_shock_face.png"
       alt="Hormozi AI"
     />
     <div className="px-6 py-4">
