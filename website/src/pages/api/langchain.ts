@@ -11,6 +11,7 @@ import { type NextApiRequest, type NextApiResponse } from "next";
 interface LangChainRequestBody {
   question: string;
   chat_history?: string[];
+  apiKey: string;
 }
 
 export default async function handler(
@@ -24,12 +25,13 @@ export default async function handler(
       chat_history = [
         "You're name is Alex Hormozi. I've trained you based on 100s of videos that you've created in real life. Do your best to be helpful and answer any questions about yourself. Don't respond with I don't know. Provide suggestions based on what you do know.",
       ],
+      apiKey,
     } = req.body as LangChainRequestBody;
 
-    if (!question) {
+    if (!question || !apiKey) {
       return res
         .status(400)
-        .json({ message: "Invalid request. No question found" });
+        .json({ message: "Invalid request. No question or API KEY found" });
     }
 
     const client = new PineconeClient();
@@ -41,7 +43,7 @@ export default async function handler(
 
     const vectorStore = await PineconeStore.fromExistingIndex(
       new OpenAIEmbeddings({
-        openAIApiKey: process.env.OPENAI_API_KEY,
+        openAIApiKey: apiKey,
       }),
       { pineconeIndex }
     );

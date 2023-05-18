@@ -4,6 +4,7 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { BiMessageRounded } from "react-icons/bi";
 
 interface Message {
   id: number;
@@ -42,6 +43,7 @@ function Chat({ apiKey }: { apiKey: string }) {
       .post("/api/langchain", {
         question: input,
         chat_history: chatHistory,
+        apiKey,
       })
       .then((resp) => {
         const answer = resp.data.answer;
@@ -62,10 +64,13 @@ function Chat({ apiKey }: { apiKey: string }) {
       });
   };
   return (
-    <div className="w-ful m-2 flex flex-col">
+    <div className="m-2 flex h-4/5 w-full flex-col overflow-y-auto">
       <div className="flex-grow space-y-4 overflow-y-auto border-2 border-solid p-4">
         {messages.length === 0 && (
-          <div>No messages yet. Start chatting below!</div>
+          <div className="mt-4 flex flex-col items-center justify-center space-y-2 text-gray-500">
+            <BiMessageRounded size={48} />
+            <p>No messages yet. Start chatting below!</p>
+          </div>
         )}
         {messages.map((message) => {
           // This will store the URLs we have seen for this message
