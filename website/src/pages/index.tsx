@@ -11,7 +11,7 @@ const Home = () => {
 
   const handleInfoClick = () => {
     toast.info(
-      "This application requires a personal API key to function properly. Please input your key into the input field."
+      "This application requires your personal OpenAI API key to function properly. Please input your key into the input field."
     );
   };
 
@@ -23,8 +23,8 @@ const Home = () => {
       </div>
       <div className="w-full md:w-2/3">
         <div className="my-4 flex items-center">
-          <label className="mr-2" htmlFor="apiKey">
-            API Key:
+          <label className="mx-2" htmlFor="apiKey">
+            OpenAI API Key:
           </label>
           <input
             id="apiKey"
