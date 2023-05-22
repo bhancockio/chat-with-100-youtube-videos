@@ -13,7 +13,7 @@ interface Message {
   sources?: { title: string; url: string }[];
 }
 
-function Chat({ apiKey }: { apiKey: string }) {
+function Chat() {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -43,7 +43,6 @@ function Chat({ apiKey }: { apiKey: string }) {
       .post("/api/langchain", {
         question: input,
         chat_history: chatHistory,
-        apiKey,
       })
       .then((resp) => {
         const answer = resp.data.answer;
@@ -135,7 +134,7 @@ function Chat({ apiKey }: { apiKey: string }) {
         <button
           type="submit"
           className="ml-4 rounded-md bg-red-500 px-4 py-2 text-white disabled:bg-red-200"
-          disabled={loading || !apiKey}
+          disabled={loading}
         >
           {loading ? "Sending..." : "Send"}
         </button>
