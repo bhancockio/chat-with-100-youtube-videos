@@ -1,4 +1,5 @@
 
+import argparse
 from langchain.vectorstores import Pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -48,13 +49,33 @@ def store_transcript(transcript, video_url, video_title):
     )
 
 
-if __name__ == '__main__':
-    with open('./scrapped_channels/ah3.csv', 'r') as f:
+def main(videos_data, transcriptions_directory):
+    with open(videos_data, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            video_id = row['url'].split('=')[-1]
-            with open(f'./video_transcriptions/{video_id}.json', 'r') as json_file:
-                data = json.load(json_file)
-                transcript = data['text']
-                store_transcript(
-                    transcript, row['url'], row['title'])
+            try:
+                video_id = row['url'].split('=')[-1]
+                json_file_path = os.path.join(
+                    transcriptions_directory, f"{video_id}.json")
+                with open(json_file_path, 'r') as json_file:
+                    data = json.load(json_file)
+                    transcript = data.get('text')
+                    if transcript:
+                        store_transcript(
+                            transcript, row['url'], row.get('title'))
+                    else:
+                        print(f"No transcript in {json_file_path}")
+            except KeyError as e:
+                print(f"Missing field: {e}")
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Save transcriptions in Pinecone')
+    parser.add_argument('videos_data', type=str,
+                        help='CSV file with video links and titles')
+    parser.add_argument('transcriptions_directory', type=str,
+                        help='Transcription output folder path')
+    args = parser.parse_args()
+
+    main(args.audio_directory, args.transcriptions_directory)

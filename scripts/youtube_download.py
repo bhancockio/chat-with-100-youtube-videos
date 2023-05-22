@@ -1,5 +1,6 @@
 import argparse
 import csv
+import os
 import yt_dlp
 from urllib.parse import parse_qs, urlparse
 
@@ -25,7 +26,7 @@ def extract_video_id(url):
     return video_id
 
 
-def main(csv_file):
+def main(csv_file, output_folder):
     with open(csv_file, 'r') as f:
         youtube_urls = f.read().splitlines()
 
@@ -39,7 +40,7 @@ def main(csv_file):
         if video_id is None:
             print(f"Couldn't extract video ID from URL: '{url}'")
             continue
-        output_path = f'./audio_files/{video_id}'
+        output_path = os.path.join(output_folder, video_id)
         download_audio(url, output_path)
 
 
@@ -48,6 +49,8 @@ if __name__ == '__main__':
         description='Download audio from YouTube URLs in a CSV file')
     parser.add_argument('csv_file', type=str,
                         help='Path to the CSV file containing YouTube URLs')
+    parser.add_argument('output_folder', type=str,
+                        help='Output folder path')
     args = parser.parse_args()
 
-    main(args.csv_file)
+    main(args.csv_file, args.output_folder)

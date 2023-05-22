@@ -1,3 +1,4 @@
+import argparse
 import requests
 import json
 import time
@@ -68,23 +69,33 @@ def create_transcript(api_token, audio_url):
     return transcription_result
 
 
-audio_directory = "./audio_files"
-audio_files = [os.path.join(audio_directory, filename) for filename in os.listdir(
-    audio_directory) if filename.endswith('.mp3')]
+def main(audio_directory, output_directory):
+    audio_files = [os.path.join(audio_directory, filename) for filename in os.listdir(
+        audio_directory) if filename.endswith('.mp3')]
 
-output_directory = 'video_transcriptions'
+    for filename in audio_files:
+        # Remove the file extension
+        base_filename = os.path.basename(filename)
+        video_id = base_filename.split('.')[0]
 
-for filename in audio_files:
-    # Remove the file extension
-    base_filename = os.path.basename(filename)
-    video_id = base_filename.split('.')[0]
+        upload_url = upload_file(ASSEMBLY_AI_API_TOKEN, filename)
+        transcript = create_transcript(ASSEMBLY_AI_API_TOKEN, upload_url)
 
-    upload_url = upload_file(ASSEMBLY_AI_API_TOKEN, filename)
-    transcript = create_transcript(ASSEMBLY_AI_API_TOKEN, upload_url)
+        # Save the transcript to a JSON file
+        output_file = os.path.join(output_directory, video_id + '.json')
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    # Save the transcript to a JSON file
-    output_file = os.path.join(output_directory, video_id + '.json')
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, 'w') as outfile:
+            json.dump(transcript, outfile)
 
-    with open(output_file, 'w') as outfile:
-        json.dump(transcript, outfile)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Transcribe audio files with AssemblyAI')
+    parser.add_argument('audio_directory', type=str,
+                        help='Folder containing audio files')
+    parser.add_argument('output_directory', type=str,
+                        help='Transcription output folder path')
+    args = parser.parse_args()
+
+    main(args.audio_directory, args.output_directory)
