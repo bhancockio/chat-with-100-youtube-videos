@@ -6,6 +6,7 @@ import Navbar from "~/components/Navbar";
 import "~/styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "~/components/Footer";
+import { Analytics } from '@vercel/analytics/react';
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -21,6 +22,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       </div>
       <Footer />
       <ToastContainer />
+      <Analytics />
     </div>
   );
 };
